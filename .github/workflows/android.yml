@@ -1,0 +1,44 @@
+name: Build AAR
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Étape 1 : Cloner le dépôt
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Étape 2 : Configurer l'environnement Java
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    # Étape 3 : Configurer l'environnement Android
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v2
+      with:
+        api-level: 31
+        build-tools: '31.0.0'
+        ndk: '23.1.7779620'
+
+    # Étape 4 : Construire le fichier AAR
+    - name: Build AAR
+      run: ./gradlew assembleRelease
+
+    # Étape 5 : Publier l'AAR comme artifact
+    - name: Upload AAR
+      uses: actions/upload-artifact@v3
+      with:
+        name: InternetAvailabilityChecker-release
+        path: app/build/outputs/aar/*.aar
